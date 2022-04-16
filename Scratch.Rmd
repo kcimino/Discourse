@@ -14,7 +14,14 @@ densities(df1)
 ```
 
 ```{r}
-ggplot(dfmodel, aes(x = mean, fill=casserole, alpha=0.7)) +
+ggplot(dfmodel, aes(y=mean, fill=casserole, color=casserole))+
+  geom_boxplot()+
+  labs(title="Mean Casseroleness By Casserole")
+```
+
+
+```{r}
+ggplot(dfmodel, aes(x = mean, fill=casserole, color=casserole, alpha=0.7)) +
   geom_density() + 
   labs(title = "Mean rating of casseroleness")
 ```
