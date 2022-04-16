@@ -1,0 +1,153 @@
+---
+title: "Scratch"
+author: "Kathleen Cimino"
+date: "4/16/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("Models.R")
+```
+```{r}
+densities(df1)
+```
+
+```{r}
+ggplot(dfmodel, aes(x = mean, fill=casserole, alpha=0.7)) +
+  geom_density() + 
+  labs(title = "Mean rating of casseroleness")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+df <- df %>% 
+  select(-Timestamp,-Name,-`Who had the most pedantic/punny argument?  (Only answer this if it is after arguments have been made)`) %>%
+  # This example replaces spaces and periods with an underscore and converts everything to lower case
+  select_all(~gsub("\\s+|\\.", "_", .)) %>% 
+  select_all(tolower)
+
+casseroles <- c(names(df[-1]))
+
+df1 <- pivot_longer(df,cols=casseroles, names_to = "casserole", values_to = "casseroleness")
+
+isnotfood= c("a_flower_pot","dirt","a_desert_valley")
+isindish= c("water_baked_in_a_casserole_dish","a_dessert_casserole","broccoli_casserole")
+
+df1 <- df1 %>%  mutate(food=ifelse(casserole%in%isnotfood,0,1),
+         dish=ifelse(casserole%in%isindish,1,0))
+
+df1
+```
+
+```{r}
+library(qacBase)
+barcharts(df)
+densities(df1)
+```
+```{r}
+
+```
+```{r}
+mod1 <- lm(casseroleness~food+casserole+dish, data=df1)
+summary(mod1)
+```
+```{r}
+formula <- casseroleness ~ food + dish + casserole
+imod <- inla(formula, family="gaussian", data=df1)
+summary(imod)
+```
+
+```{r}
+bri.fixed.plot(imod)
+```
+```{r}
+plot(imod)
+```
+```{r}
+ibci <- imod$summary.fixed
+plot(imod$marginals.fixed$x, type = "l", xlab = "beta", ylab = "density", 
+    xlim = c(60, 100),ylim=c(0,100))
+abline(v = ibci[c(3, 5)], lty = 2)
+
+
+imod$summary.fixed$mean
+```
+```{r}
+curve(imod$summary.fitted.values$mean)
+```
+```{r}
+df3 <- imod$summary.fitted.values
+df3$casserole <- "all"
+```
+```{r}
+df3
+```
+```{r}
+
+```
+
+
+# per casserole
+
+```{r}
+formula <- casseroleness ~ food + dish
+dfbroc <- filter(df1, casserole=="broccoli_casserole")
+imod <- inla(formula, family="gaussian", data=dfbroc)
+summary(imod)
+```
+```{r}
+dfbroc1 <- imod$summary.fitted.values
+dfbroc1$casserole <- "broccolli_casserole"
+ggplot(dfmodel, aes(x = mean, fill=casserole, alpha=0.7)) +
+  geom_density() + 
+  labs(title = "Mean rating of casseroleness")
+```
+
+```{r}
+df4 <- rbind(df3,dfbroc1)
+```
+
+```{r}
+casserolename <- "a_flower_pot"
+
+casseroleinla <- function(casserolename){
+formula <- casseroleness ~ food + dish
+dftemp <-  filter(df1, casserole==casserolename)
+assign(paste("imod",casserolename), inla(formula, family="gaussian", data=dftemp))
+}
+
+casseroledf1 <- function(casserolename){
+  assign(paste("imod",casserolename),casseroleinla(casserolename))
+}
+casseroledf2 <- function(casserolename){
+  (casseroledf1(casserolename))$summary.fitted.values %>% mutate(casserole=casserolename)
+}
+
+df5 <- casseroleinla("dirt")
+df5 <- df5$summary.fitted.values
+df5$casserole <- "dirt"
+
+(casseroledf1(casserolename))$summary.fitted.values%>% mutate(casserole=casserolename)
+casseroledf2(casserolename)
+
+dfmodel <- casseroledf2(casseroles[1])
+rbind(dfmodel,dfbroc1)
+
+for (i in 2:10){
+  dftemp <- casseroledf2(casseroles[i])
+  dfmodel <- rbind(dfmodel,dftemp)}
+
+#print(dftemp <- casseroledf2(casseroles[2]) %>% select(casserole))
+```
+
