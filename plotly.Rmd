@@ -1,0 +1,15 @@
+---
+title: "Plotly"
+author: "Kathleen Cimino"
+date: "4/16/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(plotly)
+```
+```{r}
+plot_ly(dfmodel, x=~casserole)
+```
+
