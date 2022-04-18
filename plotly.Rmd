@@ -7,9 +7,47 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+source("Models.R")
 library(plotly)
+
+dfmodelafter <- dfmodelafter %>% mutate(before_or_after="after")
+dfmodelbefore <- dfmodelbefore %>% mutate(before_or_after="before")
+dfmodel <-  rbind(dfmodelafter,dfmodelbefore)
+dfmodel$before_or_after <- factor(dfmodel$before_or_after,
+                                  levels=c("before","after"),
+                                  ordered=TRUE)
 ```
 ```{r}
-plot_ly(dfmodel, x=~casserole)
+plot_ly(dfmodel, x=~food,color=~dish)
 ```
+```{r}
+plot_ly(dfmodel, x=~casserole, y=~mean,color=~food)
+```
+```{r}
+food <- ggplot(dfmodel,aes(x=mean,fill=food, frame=before_or_after, alpha=.07)) +
+  geom_density()
+
+ggplotly(food)
+
+dish <- ggplot(dfmodel,aes(x=mean,fill=dish, frame=before_or_after, alpha=.07)) +
+  geom_density()
+
+ggplotly(dish)
+
+argued <- ggplot(dfmodel,aes(x=mean,fill=argued, frame=before_or_after, alpha=.07)) +
+  geom_density()
+
+ggplotly(argued)
+```
+```{r}
+test2 <- ggplot(dfmodel,aes(x=casserole,y=mean, fill=casserole))+
+  geom_boxplot()#+
+  geom_point(aes(x=mean))
+ggplotly(test2)
+
+library(ggridges)
+ggplot(dfmodel,aes(y=casserole,x=mean, fill=casserole))+
+geom_density_ridges() 
+
+````
 
