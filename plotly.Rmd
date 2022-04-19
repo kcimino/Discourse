@@ -20,34 +20,55 @@ dfmodel$before_or_after <- factor(dfmodel$before_or_after,
 ```{r}
 plot_ly(dfmodel, x=~food,color=~dish)
 ```
+There appears to be a relationship between being a food and being in a dish/being a dish.
 ```{r}
 plot_ly(dfmodel, x=~casserole, y=~mean,color=~food)
 ```
+As expected, the mean scores of casseroles vary, and it seems as though this might be affected by whether or not a casserole is edible, but this relationship would require more analysis to confirm.
 ```{r}
 food <- ggplot(dfmodel,aes(x=mean,fill=food, frame=before_or_after, alpha=.07)) +
   geom_density()
 
 ggplotly(food)
+```
+Before arguments casseroles that are not food seem to have strong peaks around three and five, while food-based casseroles have moderate peaks around four and nine. After the arguments, casseroles that aren't food based are almost uniformly distributed from 0-9, and food-based casseroles have moderate peaks around 5 and 7. This indicates that the arguments affected how both food and non food based casseroles were viewed.
 
+```{r}
 dish <- ggplot(dfmodel,aes(x=mean,fill=dish, frame=before_or_after, alpha=.07)) +
   geom_density()
 
 ggplotly(dish)
-
+```
+Before arguments, casseroles that are not based on/include a dish are strongly concentrated below 5, while casseroles that are based on/include a dish are almost uniformly distributed. After arguments, both distributions are multimodal (they have several peaks), and the largest peak for non-dish items is around 5, while the highest peak for dish-based items is around 7.
+```{r}
 argued <- ggplot(dfmodel,aes(x=mean,fill=argued, frame=before_or_after, alpha=.07)) +
   geom_density()
 
 ggplotly(argued)
 ```
+The distribution of casseroles that were argued about shifts to the right after arguments occurred, while the casseroles that were not argued about remain about the same, indicating that the arguments used did affect how people rated the casseroles.
+
+```{r}
+test2 <- ggplot(dfmodel,aes(x=casserole,y=mean, fill=casserole, frame=before_or_after))+
+  geom_boxplot()+
+  theme(axis.text.x = element_text(angle = 45, 
+                                   hjust = 1))
+
+ggplotly(test2)
+```
+Unfortunately, there is not enough data to make a nice animated boxplot graph, so a boxplot without the before or after frame is included below. However, this graph does highlight how the different casseroles changed before and after the arguments
 ```{r}
 test2 <- ggplot(dfmodel,aes(x=casserole,y=mean, fill=casserole))+
-  geom_boxplot()#+
-  geom_point(aes(x=mean))
-ggplotly(test2)
+  geom_boxplot()+
+  theme(axis.text.x = element_text(angle = 45, 
+                                   hjust = 1))
 
+ggplotly(test2)
+```
+```{r}
 library(ggridges)
 ggplot(dfmodel,aes(y=casserole,x=mean, fill=casserole))+
 geom_density_ridges() 
 
 ````
-
+This graph is not interactive as the geom_ridges are not included in ggplotly (yet). However, I think it works as a nice supplement to the boxplot above.
