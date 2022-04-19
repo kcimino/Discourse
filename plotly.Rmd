@@ -71,4 +71,6 @@ ggplot(dfmodel,aes(y=casserole,x=mean, fill=casserole))+
 geom_density_ridges() 
 
 ````
+
+
 This graph is not interactive as the geom_ridges are not included in ggplotly (yet). However, I think it works as a nice supplement to the boxplot above.
